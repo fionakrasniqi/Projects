@@ -1,0 +1,54 @@
+------Store Procedure (Find top 1 Agent with the highest sum of commission rate in between two dates----------------------
+-----------------------------------------------------------------------------------------------------------------------------------------------------
+
+Alter PROC FindTop
+    @startDate DATE = '%',
+    @endDate DATE= '%'
+AS
+BEGIN
+    SELECT TOP 1 a.AgentID, a.FirstName, a.LastName, SUM(T.Commission) AS TotalCommission
+    FROM Agent a
+    INNER JOIN Tranzaksion t ON a.AgentID = t.AgentID
+    WHERE t.TransactionDate BETWEEN @startDate AND @endDate
+    GROUP BY a.AgentID, a.FirstName, a.LastName
+    ORDER BY TotalCommission DESC;
+END;
+Go
+exec FindTop @startDate = '2023-01-01', @endDate = '2023-12-31';
+
+-----------------------------------------------------------------------------------------------------------------------------------------------------
+------Store Procedure (Find properties and their type owned by a specific buyer by only giving name and surname---------
+------------------------------------------------------------------------------------------------------------------------------------------------------
+
+ALTER PROC [dbo].[GetApartmentsByBuyer]
+    @FirstName VARCHAR(50),
+    @LastName VARCHAR(50)
+AS
+BEGIN
+
+    SELECT DISTINCT 
+	CONCAT(b.FirstName,' ',b.LastName) as FullName,
+	p.PropertyID,
+	PT.PropertyTypeID,
+	pt.TypeName
+    FROM Tranzaksion T
+    inner join Property P on T.PropertyID = P.PropertyID
+    inner join PropertyType PT on P.PropertyTypeID = PT.PropertyTypeID
+    inner join Buyer b on T.BuyerID = b.BuyerID
+    WHERE b.FirstName = @FirstName AND b.LastName = @LastName
+        
+END;
+
+-----------------------------------------------------------------------------------------------------------------------------------------------------
+------Store Procedure (Find buyers details by only giving a portion of the name---------
+------------------------------------------------------------------------------------------------------------------------------------------------------
+
+ALTER PROC [dbo].[spFindbuyer]
+  @buyer varchar (40) ='%'
+AS
+BEGIN
+ select FirstName,LastName, Email, Phone, Address, City, State, ZipCode from Buyer
+ WHERE FirstName like @buyer;
+END
+
+

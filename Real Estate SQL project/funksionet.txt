@@ -1,0 +1,48 @@
+---------------------------------------------------------------------------------------
+Function- simple function, adding 100o to a number (scalar valued)
+---------------------------------------------------------------------------------------
+CREATE FUNCTION ADDMORE(@NUM AS INT)
+RETURNS INT
+AS
+BEGIN
+RETURN(
+@NUM+1000
+)
+END
+
+SELECT dbo.ADDMORE(10)
+
+---------------------------------------------------------------------------------------
+Function- table valued , return ony male or female buyers
+---------------------------------------------------------------------------------------
+create function gender(@gender as varchar(50))
+RETURNS TABLE
+AS
+RETURN (
+select * from Buyer
+where Gender=@gender
+)
+
+select * from dbo.gender('M')
+select * from dbo.gender('F')
+
+-------------------------------------------------------------------------------------------------------
+Function- scalar valued , calculate the commission amount of an agent from a price
+--------------------------------------------------------------------------------------------------------
+
+CREATE FUNCTION CommissionRate (
+    @AgentID INT,
+    @Price DECIMAL(18, 2)
+)
+RETURNS DECIMAL(18, 2)
+AS
+BEGIN
+    RETURN @Price * (SELECT CommissionRate FROM Agent WHERE AgentID = @AgentID)
+END;
+
+DECLARE @Price DECIMAL(18, 2) = 50000.0
+DECLARE @AgentID INT = 5
+
+DECLARE @CommissionAmount DECIMAL(18, 2)
+SET @CommissionAmount = dbo.CommissionRate(@AgentID, @Price)
+SELECT @CommissionAmount AS CommissionAmount
